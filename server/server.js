@@ -99,6 +99,7 @@ var quiz;
       }
     });
 
+    //update
     app.put("/api/quizzes/:id", async (req, res) => {
       const client = req.body.client;
       const quiz = req.body.quiz;
