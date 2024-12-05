@@ -30,6 +30,7 @@ const Register = () => {
         name,
         email,
         role: "student",
+        reward: 0,
       });
       console.log(data);
 

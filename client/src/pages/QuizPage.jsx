@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Initial from "../components/QuizPage/Initial";
+import { AuthContext } from "../providers/AuthProvider";
+import Grade from "../components/QuizPage/Grade";
 
 function QuizPage() {
+  const { user } = useContext(AuthContext);
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [gradingStrategy, setGradingStrategy] = useState("percentage"); // Default grading strategy
@@ -14,6 +17,7 @@ function QuizPage() {
   const [timerStarted, setTimerStarted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [grade, setGrade] = useState("");
+  const [reward, setReward] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
 
   useEffect(() => {
@@ -83,7 +87,47 @@ function QuizPage() {
       .catch((error) => {
         console.error("Error grading quiz:", error);
       });
+
+    // reward calculation
+    const correctAnswers = answers.filter(
+      (answer, index) => answer === quiz.questions[index].answer
+    ).length;
+    console.log(correctAnswers);
+
+    if (difficulty === "easy" && timeLimit === 5) {
+      setReward(correctAnswers * 4);
+    } else if (difficulty === "easy" && timeLimit === 10) {
+      setReward(correctAnswers * 3);
+    } else if (difficulty === "easy" && timeLimit === 15) {
+      setReward(correctAnswers * 2);
+    } else if (difficulty === "medium" && timeLimit === 5) {
+      setReward(correctAnswers * 6);
+    } else if (difficulty === "medium" && timeLimit === 10) {
+      setReward(correctAnswers * 5);
+    } else if (difficulty === "medium" && timeLimit === 15) {
+      setReward(correctAnswers * 4);
+    } else if (difficulty === "hard" && timeLimit === 5) {
+      setReward(correctAnswers * 8);
+    } else if (difficulty === "hard" && timeLimit === 10) {
+      setReward(correctAnswers * 7);
+    } else {
+      setReward(correctAnswers * 6);
+    }
   };
+
+  useEffect(() => {
+    axios
+      .post("http://localhost:5000/api/complete-quiz", {
+        email: user?.email,
+        reward: reward,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error grading quiz:", error);
+      });
+  }, [user, reward]);
 
   const handleStrategyChange = (event) => {
     setGradingStrategy(event.target.value);
@@ -177,9 +221,7 @@ function QuizPage() {
           )}
         </div>
       ) : (
-        <div>
-          <h1>Your Grade is: {grade}</h1>
-        </div>
+        <Grade grade={grade} reward={reward} />
       )}
     </div>
   );

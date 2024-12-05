@@ -11,6 +11,7 @@ const QuestionFactory = require("./factories/QuestionFactory");
 const SujectFilter = require("./decorators/SubjectFilter");
 const DifficultyFilter = require("./decorators/DifficultyFilter");
 const { ObjectId } = require("mongodb");
+const LeaderboardService = require("./observer/LeaderboardService");
 
 const app = express();
 const port = 5000;
@@ -72,7 +73,7 @@ var quiz;
       if (user) {
         admin = user?.role === "admin";
       }
-      res.send({ admin });
+      res.send({ admin, user });
     });
 
     app.get("/students", async (req, res) => {
@@ -142,7 +143,7 @@ var quiz;
 
     // get single document by id
     app.get("/api/quizzes/:id", async (req, res) => {
-      const id = req.params.id; 
+      const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await quizzesCollection.findOne(query);
       res.send(result);
@@ -184,6 +185,36 @@ var quiz;
       console.log(typeof quiz.grade);
       const grade = quiz.grade(answers, gradingStrategy);
       res.send({ grade });
+    });
+
+    // Initialize leaderboard service with the database
+    const leaderboardService = new LeaderboardService(db);
+
+    // API to update leaderboard after a quiz
+    app.post("/api/complete-quiz", async (req, res) => {
+      const { email, reward } = req.body;
+
+      try {
+        const rewardUpdates = { [email]: reward }; // Reward changes for this quiz
+        await leaderboardService.updateLeaderboard(rewardUpdates);
+        console.log(rewardUpdates);
+        res.send({
+          success: true,
+          message: "Leaderboard updated!",
+        });
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
+    });
+
+    // API to fetch the leaderboard
+    app.get("/api/leaderboard", async (req, res) => {
+      try {
+        const leaderboard = await leaderboardService.getLeaderboard();
+        res.send(leaderboard);
+      } catch (err) {
+        res.status(500).send({ error: err.message });
+      }
     });
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error.message);

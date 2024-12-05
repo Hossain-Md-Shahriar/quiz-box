@@ -56,6 +56,11 @@ const Main = () => {
                       <MdCalendarMonth /> Take a Quiz
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink to="/leaderboard">
+                      <MdCalendarMonth /> Leaderboard
+                    </NavLink>
+                  </li>
                 </>
               )}
             </ul>

@@ -12,6 +12,7 @@ import MultipleChoice from "../pages/MultipleChoice";
 import TrueFalse from "../pages/TrueFalse";
 import ManageQuestions from "../pages/ManageQuestions";
 import UpdateQuestion from "../pages/UpdateQuestion";
+import Leaderboard from "../pages/Leaderboard";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +40,14 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <QuizPage />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/leaderboard",
+        element: (
+          <PrivateRoute>
+            <Leaderboard />
           </PrivateRoute>
         ),
       },
