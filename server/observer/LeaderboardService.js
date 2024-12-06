@@ -2,7 +2,7 @@ const LeaderboardObserver = require("./LeaderboardObserver");
 
 class LeaderboardService {
   constructor(db) {
-    this.db = db; // Pass the database instance during initialization
+    this.db = db;
   }
 
   // Fetch all users from the database
